@@ -2,6 +2,7 @@
 provides class bot_segnalazioni
 """
 import logging
+import re
 from telegram import Update
 from telegram import *
 from telegram.ext import MessageHandler
@@ -119,9 +120,15 @@ class bot_segnalazioni:
             logging.error("/manda non è mel mess ricevuto. qualcosa non va!!")
             return
 
+        #quello che match è (lungo quanto) tutto il messaggi
+        if len(re.search("/manda\s*", update.message.text).group(0)) == len(update.message.text): 
+            logging.error("messaggio vuoto")
+            await update._bot.send_message(text="Corpo della segnalazione vuoto!", 
+                        chat_id = update.effective_chat.id)
+            return
 
         messConComandoTolto = update.message.text.replace("/manda","")
-        testoMessModificato = "Segnalazione da " + str(update.message.from_user.first_name) + "\n\n" + self.__text2md(messConComandoTolto) + "\n\nPer contattare l'utente: " + "[Toccami](tg://user?id=" + str(update.message.from_user.id) +")"
+        testoMessModificato = "Segnalazione da " + str(update.message.from_user.first_name) + str(update.message.from_user.last_name) + "\n\n" + self.__text2md(messConComandoTolto) + "\n\nPer contattare l'utente: " + "[Toccami](tg://user?id=" + str(update.message.from_user.id) +")"
 
         logging.warning(testoMessModificato)
 
