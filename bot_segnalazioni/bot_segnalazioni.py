@@ -2,6 +2,7 @@
 provides class bot_segnalazioni
 """
 import logging
+import re
 from telegram import Update
 from telegram import *
 from telegram.ext import MessageHandler
@@ -20,6 +21,7 @@ class bot_segnalazioni:
     """
     bot_segnalazioni telegram bot
     """
+
     def __init__(self) -> None:
         """
         default constructor
@@ -72,10 +74,11 @@ class bot_segnalazioni:
         )
 
     """forse non è ottimale stia qui txt2md"""
-    def __text2md(self, str:str) -> str:
+
+    def __text2md(self, str: str) -> str:
         charset = ['_', '*', '[', '`']
         for i in charset:
-            str= str.replace(i, '\\'+i)
+            str = str.replace(i, '\\'+i)
         return str
 
     async def __handle_message(
@@ -90,8 +93,6 @@ class bot_segnalazioni:
         """
         logging.warning("\n(__handle_message) MESS ARRIVATO: \n %s\n" % update)
         await self.__handle_help(update, context)
-
-        
 
     async def __handle_manda(
             self,
@@ -113,25 +114,30 @@ class bot_segnalazioni:
             await update._bot.forward_message(chat_id = self.__chats['ADMIN_CHAT_ID'].chat_id,
                             from_chat_id = update.effective_chat.id,
                             message_id = update.message.message_id)"""
-        
-        
+
         if "/manda" not in update.message.text:
-            logging.error("/manda non è mel mess ricevuto. qualcosa non va!!")
+            logging.error(" /manda non è nel mess ricevuto. qualcosa non va!!")
             return
 
+        # quello che matcha è (lungo quanto) tutto il messaggio
+        if len(re.search("/manda\s*", update.message.text).group(0)) == len(update.message.text):
+            logging.error("messaggio vuoto")
+            await update._bot.send_message(text="Corpo della segnalazione vuoto!",
+                                           chat_id=update.effective_chat.id)
+            return
 
-        messConComandoTolto = update.message.text.replace("/manda","")
-        testoMessModificato = "Segnalazione da " + str(update.message.from_user.first_name) + "\n\n" + self.__text2md(messConComandoTolto) + "\n\nPer contattare l'utente: " + "[Toccami](tg://user?id=" + str(update.message.from_user.id) +")"
+        messConComandoTolto = update.message.text.replace("/manda", "")
+        testoMessModificato = "Segnalazione da " + str(update.message.from_user.first_name) + str(update.message.from_user.last_name) + "\n\n" + self.__text2md(
+            messConComandoTolto) + "\n\nPer contattare l'utente: " + "[Toccami](tg://user?id=" + str(update.message.from_user.id) + ")"
 
         logging.warning(testoMessModificato)
 
-        await update._bot.send_message(text=testoMessModificato, 
-                        parse_mode = "MarkdownV2", 
-                        chat_id = self.__chats['ADMIN_CHAT_ID'].chat_id)
+        await update._bot.send_message(text=testoMessModificato,
+                                       parse_mode="MarkdownV2",
+                                       chat_id=self.__chats['ADMIN_CHAT_ID'].chat_id)
 
-        await update._bot.send_message(text="Segnalazione mandata. Grazie per aver usato questo bot.", 
-                        chat_id = update.effective_chat.id)
-
+        await update._bot.send_message(text="Segnalazione mandata. Grazie per aver usato questo bot.",
+                                       chat_id=update.effective_chat.id)
 
     async def __handle_help(
             self,
@@ -145,9 +151,9 @@ class bot_segnalazioni:
         """
         logging.warning("/help: %s" % update)
 
-        await update._bot.send_message(text="<i><b>Benvenuto nel Bot Segnalazioni di SvoltaMiB</b></i>\nSe vuoi spedire una segnalazione basta scrivere\n /manda corpo della segnalazione \nProva!", 
-                        parse_mode = "HTML", 
-                        chat_id = update.effective_chat.id)
+        await update._bot.send_message(text="<i><b>Benvenuto nel Bot Segnalazioni di SvoltaMiB</b></i>\nSe vuoi spedire una segnalazione basta scrivere\n /manda corpo della segnalazione \nProva!",
+                                       parse_mode="HTML",
+                                       chat_id=update.effective_chat.id)
 
     def start(self) -> None:
         """
