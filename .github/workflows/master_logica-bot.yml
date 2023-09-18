@@ -65,6 +65,6 @@ jobs:
           app-name: 'logica-bot'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_643A8D8954F249339DA01CB7B082D2FF }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CEC19DB3B605493D8491F4FA7402ABC9 }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
